@@ -1,5 +1,5 @@
-let commitX = 120
-let commitY = 50
+let commitX = 120;
+let commitY = 50;
 
 const careerCommits = [
   { id: 4, company: "Intel Corporation", position: "Cloud/Embedded Software Development Engineer", date: "Nov 2023 - Now", x: commitX, y: commitY },
@@ -9,6 +9,11 @@ const careerCommits = [
 ];
 
 const svg = document.getElementById("commit-graph");
+
+// Create a tooltip element and add it to the document body
+const tooltip = document.createElement("div");
+tooltip.classList.add("tooltip");
+document.body.appendChild(tooltip);
 
 // Draw branches (connecting lines between commits)
 for (let i = 0; i < careerCommits.length - 1; i++) {
@@ -22,24 +27,18 @@ for (let i = 0; i < careerCommits.length - 1; i++) {
   line.setAttribute("y2", end.y);
   line.classList.add("commit-branch");
 
-  if (i == 0)
-  {
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    line.setAttribute("x1", start.x);
-    line.setAttribute("y1", start.y);
-    line.setAttribute("x2", end.x);
-    line.setAttribute("y2", start.y - 50);
-    line.classList.add("commit-future");
-    svg.appendChild(line);
+  if (i === 0) {
+    const futureLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    futureLine.setAttribute("x1", start.x);
+    futureLine.setAttribute("y1", start.y);
+    futureLine.setAttribute("x2", end.x);
+    futureLine.setAttribute("y2", start.y - 50);
+    futureLine.classList.add("commit-future");
+    svg.appendChild(futureLine);
   }
 
   svg.appendChild(line);
 }
-
-// Create a tooltip element and add it to the document body
-const tooltip = document.createElement("div");
-tooltip.classList.add("tooltip");
-document.body.appendChild(tooltip);
 
 // Draw commit nodes
 careerCommits.forEach((commit) => {
@@ -60,16 +59,25 @@ careerCommits.forEach((commit) => {
 
   // Show tooltip and hide label on hover
   circle.addEventListener("mouseenter", (event) => {
+    const cx = parseFloat(circle.getAttribute("cx"));
+    const cy = parseFloat(circle.getAttribute("cy"));
+    const svgBBox = svg.getBoundingClientRect();
+
     text.style.display = "none";
+
+    // Update tooltip content and position
     tooltip.textContent = `${commit.company} - ${commit.position} (${commit.date})`;
-    tooltip.style.left = "155px"; // Position tooltip on the left side of the document
-    tooltip.style.top = `${commit.y + 370}px`
-    tooltip.style.display = "block";
+    tooltip.style.left = `${cx + 35}px`; // Position the tooltip next to the circle
+    tooltip.style.top = `${cy + svgBBox.top - 20}px`;  // Slight offset for better appearance
+    tooltip.style.display = "block";    // Show tooltip
+
+    console.log(`sbgx: ${svgBBox.left}, svgy: ${svgBBox.top}`);
+    console.log(`cx: ${cx}, cy: ${cy}`);
   });
 
   // Hide tooltip and show label on mouse leave
   circle.addEventListener("mouseleave", () => {
     text.style.display = "block";
-    tooltip.style.display = "none";
+    tooltip.style.display = "none"; // Hide tooltip
   });
 });
